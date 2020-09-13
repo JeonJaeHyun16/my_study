@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<launch>
+    
+    <!-- move base -->
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base_node">
+        <!-- params for move_base -->
+        <param name="planner_frequency" value="2" />
+        <param name="controller_frequency" value="10.0" />
+        <param name="controller_patience" value="3.0" />
+        <param name="oscillation_timeout" value="30.0" />
+        <param name="oscillation_distance" value="0.5" />
+        <!-- params for local control (dwa) -->
+        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
+        <rosparam file="$(find hypha_racecar)/launch/Simulation/includes/dwa_local_planner_params.yaml" command="load" />
+        <!-- params for costmap layers -->        
+        <rosparam file="$(find hypha_racecar)/launch/Simulation/includes/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find hypha_racecar)/launch/Simulation/includes/global_costmap_params.yaml" command="load" />
+    </node>
+    <!--robot pose -->
+    <arg name="x" default="-3"/>
+    <arg name="y" default="1"/>
+    <arg name="z" default="0"/>
+    <arg name="roll" default="0"/>
+    <arg name="pitch" default="0"/>
+    <arg name="yaw" default="0"/>
+
+    <!--send urdf to param server -->
+    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find steerbot)/urdf/steerbot.xacro'"/>
+    
+    <!--send ackerman plugin params to param server-->
+    <rosparam file="$(find steerbot)/config/ackermansteer.yaml" command="load" ns="/steerbot"/>
+
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+        <param name="use_gui" value="false"/>
+    </node>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" 
+        type="robot_state_publisher" respawn="false" output="screen"/>
+
+    <!-- Launch Gazebo World -->
+ 
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="paused" value="true"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="debug" value="false"/>
+        <arg name="gui" value="true"/>
+        <arg name="world_name" value='$(find steerbot)/world/turtlebot3_house.world'/>
+    </include>
+    <!-- Spawn My Robot -->
+    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-urdf -param robot_description -model steerbot
+        -x $(arg x) -y $(arg y) -z $(arg z)
+        -R $(arg roll) -P $(arg pitch) -Y $(arg yaw)"/>
+
+    <!-- AMCL Config -->
+    <include file="$(find hypha_racecar)/launch/Simulation/includes/amcl_node.xml"/>  
+
+    <!-- RVIZ -->
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find hypha_racecar)/rviz_cfg/hypha_stage_sim.rviz" />
+    <!-- 원래 있던부분
+    <node name="rviz" pkg="rviz" type="rviz" respawn="false"/>
+    -->
+</launch>
+
