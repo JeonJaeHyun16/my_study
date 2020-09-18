@@ -2,30 +2,15 @@
 <launch>
     
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-        <param name="use_gui" value="false"/>
     </node>
 
     <!--send ackerman plugin params to param server-->
     <rosparam file="$(find steerbot)/config/ackermansteer.yaml" command="load" ns="/steerbot"/>
-    
-    <!-- move base -->
-    <node pkg="move_base" type="move_base" respawn="false" name="move_base_node">
-        <!-- params for move_base -->
-        <param name="planner_frequency" value="2" />
-        <param name="controller_frequency" value="10.0" />
-        <param name="controller_patience" value="3.0" />
-        <param name="oscillation_timeout" value="30.0" />
-        <param name="oscillation_distance" value="0.5" />
-        <!-- params for local control (dwa) -->
-        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
-        <rosparam file="$(find hypha_racecar)/launch/Simulation/includes/dwa_local_planner_params.yaml" command="load" />
-        <!-- params for costmap layers -->        
-        <rosparam file="$(find hypha_racecar)/launch/Simulation/includes/local_costmap_params.yaml" command="load" />
-        <rosparam file="$(find hypha_racecar)/launch/Simulation/includes/global_costmap_params.yaml" command="load" />
-    </node>
+
     <!-- Map server -->
-    <node pkg="map_server" name="map_server" type="map_server" args="$(find steerbot)/maps/map.yaml"/>
-    
+    <node pkg="map_server" name="map_server" type="map_server" args="$(find steerbot)/maps/map.yaml">
+        <param name="frame_id" value="/map"/>
+    </node>
 
      <!-- AMCL Config -->
     <node pkg="amcl" type="amcl" name="amcl" respawn="true">
@@ -42,6 +27,7 @@
         <param name="kld_z" value="0.99"/>
         <param name="odom_alpha1" value="0.1"/>
         <param name="odom_alpha2" value="0.1"/>
+
         <!-- translation std dev, m -->
         <param name="odom_alpha3" value="0.1"/>
         <param name="odom_alpha4" value="0.1"/>
@@ -53,6 +39,7 @@
         <param name="laser_lambda_short" value="0.1"/>
         <param name="laser_lambda_short" value="0.1"/>
         <param name="laser_model_type" value="likelihood_field"/>
+
         <!-- <param name="laser_model_type" value="beam"/> -->
         <param name="laser_likelihood_max_dist" value="2.0"/>
         <param name="update_min_d" value="0.01"/>
@@ -68,11 +55,29 @@
         <param name="initial_cov_xx" value="0.1" />
         <param name="initial_cov_yy" value="0.1" />
         <param name="initial_cov_aa" value="0.05" />
+        <param name="global_frame_id" value="/map" />
+
     </node>
 
         
+    <!-- move base -->
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base_node">
+        <!-- params for move_base -->
+        <param name="planner_frequency" value="2" />
+        <param name="controller_frequency" value="10.0" />
+        <param name="controller_patience" value="3.0" />
+        <param name="oscillation_timeout" value="30.0" />
+        <param name="oscillation_distance" value="0.5" />
+        <!-- params for local control (dwa) -->
+        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
+        <rosparam file="$(find steerbot)/Simulation/dwa_local_planner_params.yaml" command="load" />
+        <!-- params for costmap layers -->        
+        <rosparam file="$(find steerbot)/Simulation/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find steerbot)/Simulation/global_costmap_params.yaml" command="load" />
+    </node>
+
     <!-- RVIZ -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find hypha_racecar)/rviz_cfg/hypha_stage_sim.rviz" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find steerbot)/rviz_cfg/hypha_stage_sim.rviz" />
     
     <!-- 원래 있던부분
     <node name="rviz" pkg="rviz" type="rviz" respawn="false"/>
