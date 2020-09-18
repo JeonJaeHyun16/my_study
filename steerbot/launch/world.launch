@@ -5,13 +5,29 @@
         <param name="use_gui" value="false"/>
     </node>
 
-    <!--send ackerman plugin params to param server
+    <!--send ackerman plugin params to param server-->
     <rosparam file="$(find steerbot)/config/ackermansteer.yaml" command="load" ns="/steerbot"/>
-    -->
+    
+    <!-- move base -->
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base_node">
+        <!-- params for move_base -->
+        <param name="planner_frequency" value="2" />
+        <param name="controller_frequency" value="10.0" />
+        <param name="controller_patience" value="3.0" />
+        <param name="oscillation_timeout" value="30.0" />
+        <param name="oscillation_distance" value="0.5" />
+        <!-- params for local control (dwa) -->
+        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
+        <rosparam file="$(find hypha_racecar)/launch/Simulation/includes/dwa_local_planner_params.yaml" command="load" />
+        <!-- params for costmap layers -->        
+        <rosparam file="$(find hypha_racecar)/launch/Simulation/includes/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find hypha_racecar)/launch/Simulation/includes/global_costmap_params.yaml" command="load" />
+    </node>
     <!-- Map server -->
-    <node pkg="map_server" name="map_server" type="map_server" args="$(find turtlebot3_navigation)/maps/map.yaml)"/>
+    <node pkg="map_server" name="map_server" type="map_server" args="$(find steerbot)/maps/map.yaml"/>
+    
 
-    <!-- AMCL Config -->
+     <!-- AMCL Config -->
     <node pkg="amcl" type="amcl" name="amcl" respawn="true">
         <remap from="scan" to="base_scan" />
         <!-- Publish scans from best pose at a max of 10 Hz -->
@@ -54,9 +70,10 @@
         <param name="initial_cov_aa" value="0.05" />
     </node>
 
+        
     <!-- RVIZ -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find hypha_racecar)/rviz_cfg/hypha_stage_sim.rviz" />
-
+    
     <!-- 원래 있던부분
     <node name="rviz" pkg="rviz" type="rviz" respawn="false"/>
     -->
