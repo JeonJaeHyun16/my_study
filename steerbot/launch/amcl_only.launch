@@ -5,17 +5,21 @@
     <arg name="open_rviz" default="true"/>
 
  
-    <!-- Map server 
-    <node pkg="map_server" name="map_server" type="map_server" args="$(find steerbot)/maps/map.yaml">
-    <param name="frame_id" value="/map"/>  
-    </node> -->
-    <!-- Map server -->
-  <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+    
+    <!-- Turtlebot3 -->
+    <include file="$(find steerbot)/launch/steerbot_remote.launch" />
 
+    <!-- Map server -->
+    <node pkg="map_server" name="map_server" type="map_server" args="$(find steerbot)/maps/map.yaml" output="screen">
+    </node> 
 
      <!-- AMCL Config -->
     <node pkg="amcl" type="amcl" name="amcl" respawn="true">
-        <remap from="scan" to="base_scan" />
+        <remap from="/scan" to="scan" />
+
+        <param name="base_frame_id" value="base_footprint" />
+        <param name="global_frame_id" value="/map" />
+
         <!-- Publish scans from best pose at a max of 10 Hz -->
         <param name="odom_model_type" value="omni"/>
         <param name="odom_alpha5" value="0.01"/>
@@ -45,7 +49,7 @@
         <param name="laser_likelihood_max_dist" value="2.0"/>
         <param name="update_min_d" value="0.01"/>
         <param name="update_min_a" value="0.01"/>
-        <param name="odom_frame_id" value="odom"/>
+        <param name="odom_frame_id" value="odom"/>   <!-- this is #3##########-->
         <param name="resample_interval" value="1"/>
         <param name="transform_tolerance" value="0.1"/>
         <param name="recovery_alpha_slow" value="0.0"/>
@@ -56,34 +60,8 @@
         <param name="initial_cov_xx" value="0.1" />
         <param name="initial_cov_yy" value="0.1" />
         <param name="initial_cov_aa" value="0.05" />
-        <param name="global_frame_id" value="/map" />
-
-    </node>
-
         
-    <!-- move base -->
-    
-    <arg name="cmd_vel_topic" default="/cmd_vel" />
-    <arg name="odom_topic" default="odom" />
-
-    <node pkg="move_base" type="move_base" respawn="false" name="move_base_node">
-        <!-- params for move_base -->
-        <param name="planner_frequency" value="2" />
-        <param name="controller_frequency" value="10.0" />
-        <param name="controller_patience" value="3.0" />
-        <param name="oscillation_timeout" value="30.0" />
-        <param name="oscillation_distance" value="0.5" />
-        <!-- params for local control (dwa) -->
-        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
-        <rosparam file="$(find steerbot)/Simulation/dwa_local_planner_params.yaml" command="load" />
-        <!-- params for costmap layers -->        
-        <rosparam file="$(find steerbot)/Simulation/local_costmap_params.yaml" command="load" />
-        <rosparam file="$(find steerbot)/Simulation/global_costmap_params.yaml" command="load" />
-        <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
-        <remap from="odom" to="$(arg odom_topic)"/>
     </node>
-
-    
      
     <!-- RVIZ -->
     <!-- 이부분은 터틀봇에서 rviz를 따온것이다. 
