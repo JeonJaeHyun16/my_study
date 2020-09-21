@@ -1,16 +1,22 @@
 <?xml version="1.0"?>
 <launch>
-    
+    <!-- Arguments 터틀봇에서 가져옴 -->
+    <arg name="map_file" default="$(find steerbot)/maps/map.yaml"/>
+    <arg name="open_rviz" default="true"/>
+
     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
     </node>
 
     <!--send ackerman plugin params to param server-->
     <rosparam file="$(find steerbot)/config/ackermansteer.yaml" command="load" ns="/steerbot"/>
 
-    <!-- Map server -->
+    <!-- Map server 
     <node pkg="map_server" name="map_server" type="map_server" args="$(find steerbot)/maps/map.yaml">
-        <param name="frame_id" value="/map"/>
-    </node>
+    <param name="frame_id" value="/map"/>  
+    </node> -->
+    <!-- Map server -->
+  <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
+
 
      <!-- AMCL Config -->
     <node pkg="amcl" type="amcl" name="amcl" respawn="true">
@@ -61,6 +67,10 @@
 
         
     <!-- move base -->
+    
+    <arg name="cmd_vel_topic" default="/cmd_vel" />
+    <arg name="odom_topic" default="odom" />
+
     <node pkg="move_base" type="move_base" respawn="false" name="move_base_node">
         <!-- params for move_base -->
         <param name="planner_frequency" value="2" />
@@ -74,11 +84,19 @@
         <!-- params for costmap layers -->        
         <rosparam file="$(find steerbot)/Simulation/local_costmap_params.yaml" command="load" />
         <rosparam file="$(find steerbot)/Simulation/global_costmap_params.yaml" command="load" />
+        <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
+        <remap from="odom" to="$(arg odom_topic)"/>
     </node>
 
-    <!-- RVIZ -->
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find steerbot)/rviz_cfg/hypha_stage_sim.rviz" />
     
+     
+    <!-- RVIZ -->
+    <group if="$(arg open_rviz)"> 
+    <node pkg="rviz" type="rviz" name="rviz" required="true"
+          args="-d $(find turtlebot3_navigation)/rviz/turtlebot3_navigation.rviz"/>
+  </group>
+    <!--<node name="rviz" pkg="rviz" type="rviz" args="-d $(find steerbot)/rviz_cfg/hypha_stage_sim.rviz" />
+    -->
     <!-- 원래 있던부분
     <node name="rviz" pkg="rviz" type="rviz" respawn="false"/>
     -->
