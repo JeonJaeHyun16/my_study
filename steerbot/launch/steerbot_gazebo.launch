@@ -10,6 +10,7 @@
     <arg name="yaw" default="0"/>
 
     <!-- Launch Gazebo World -->
+    <node name="odometry_publisher" pkg="odometry_publisher_tutorial" type="odometry_publisher"/>
  
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="paused" value= "false"/>

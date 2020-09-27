@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<robot name ="steerbot_sim" xmlns:xacro="http://ros.org/wiki/xacro">
+<robot name ="steerbot" xmlns:xacro="http://ros.org/wiki/xacro">
    <xacro:arg name="laser_visual"  default="false"/>
    <xacro:arg name="camera_visual" default="false"/>
    <xacro:arg name="imu_visual"    default="false"/>
@@ -22,7 +22,7 @@
          <wheelDiameter>0.15</wheelDiameter>
          <wheelAcceleration>0.0</wheelAcceleration>
          <wheelTorque>5.0</wheelTorque>
-         
+         <legacyMode>false</legacyMode>
          <updateRate>50.0</updateRate>
          <rosDebugLevel>na</rosDebugLevel>
 

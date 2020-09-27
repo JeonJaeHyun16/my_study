@@ -55,7 +55,7 @@ Visualization Manager:
       Enabled: true
       Frame Timeout: 15
       Frames:
-        All Enabled: false
+        All Enabled: true
         IMU_link:
           Value: false
         base_footprint:

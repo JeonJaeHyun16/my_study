@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+
 <launch>
     <!-- Arguments 터틀봇에서 가져옴 -->
     <arg name="map_file" default="$(find steerbot)/maps/map.yaml"/>
@@ -17,6 +18,27 @@
 
      <!-- AMCL Config -->
      <include file="$(find steerbot)/launch/includes/amcl_node.xml"/>
+      <!-- move base -->
+    
+    <arg name="cmd_vel_topic" default="/cmd_vel" />
+    <arg name="odom_topic" default="odom" />
+
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base_node">
+        <!-- params for move_base -->
+        <param name="planner_frequency" value="2" />
+        <param name="controller_frequency" value="10.0" />
+        <param name="controller_patience" value="3.0" />
+        <param name="oscillation_timeout" value="30.0" />
+        <param name="oscillation_distance" value="0.5" />
+        <!-- params for local control (dwa) -->
+        <param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
+        <rosparam file="$(find steerbot)/Simulation/dwa_local_planner_params.yaml" command="load" />
+        <!-- params for costmap layers -->        
+        <rosparam file="$(find steerbot)/Simulation/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find steerbot)/Simulation/global_costmap_params.yaml" command="load" />
+        <remap from="cmd_vel" to="$(arg cmd_vel_topic)"/>
+        <remap from="odom" to="$(arg odom_topic)"/>
+    </node>
      
     <!-- RVIZ -->
    
